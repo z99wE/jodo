@@ -7,6 +7,8 @@
 
 ---
 
+![Jodo User Journey Storyboard](./assets/storyboard.png)
+
 ## 🚀 The Problem
 
 Everyday life in India requires navigating a maze of complex digital infrastructure. Booking a Tatkal train ticket on IRCTC, filing GST, checking EPFO balances, or paying a BESCOM electricity bill on a confusing portal are daunting tasks. For millions of Indians facing digital literacy barriers, language barriers, or visual impairments, these poorly designed interfaces are impossible to use.
