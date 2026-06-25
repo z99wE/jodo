@@ -124,8 +124,8 @@ export default function Home() {
 
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-12 relative z-10 bg-black/50 mt-20">
+      {/* Footer / Docs */}
+      <footer id="docs" className="border-t border-white/5 py-12 relative z-10 bg-black/50 mt-20">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="w-6 h-6 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
