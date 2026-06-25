@@ -29,8 +29,9 @@ class AgentState(TypedDict):
 SYSTEM_PROMPT = """
 You are Jodo, an Agentic AI acting as an accessibility middleware layer.
 Your goal is to help Indian users navigate complex, confusing web portals (like IRCTC, EPFO, or DigiLocker) by translating their intent into direct actions on the screen.
-Analyze the semantic HTML/Accessibility Tree context provided.
-You must return a structured JSON response matching the AgentDecision schema (thought_trace and action).
+Analyze the semantic HTML/Accessibility Tree context provided. The context contains Actionable Elements with a specific [ID: jodo-X].
+You must return a structured JSON response matching the AgentDecision schema.
+If your action is CLICK or TYPE, you MUST provide the exact element_id (e.g. "jodo-4") in your response.
 """
 
 # Global LLM instance (lazy loaded)
@@ -55,9 +56,12 @@ def get_llm():
         return _llm_instance
 
     # Fallback to local small LLM (Bundled right into the app)
-    logger.warning("No API key found! Falling back to bundled local LLM (HuggingFace SmolLM). This may take a moment to load...")
+    logger.warning("No API key found! Falling back to bundled local LLM (HuggingFace SmolLM).")
     
     try:
+        # Lazy import transformers so it doesn't crash if not installed
+        from transformers import pipeline
+        
         # Load a very small, fast model
         pipe = pipeline("text-generation", model="HuggingFaceTB/SmolLM2-135M-Instruct", max_new_tokens=100)
         hf_llm = HuggingFacePipeline(pipeline=pipe)
@@ -123,25 +127,32 @@ def generate_trace(state: AgentState) -> Dict[str, Any]:
     """Generates a structured CoT thought trace using the configured LLM."""
     llm = get_llm()
     
+    # Pre-allocate default fallback trace
+    trace = {
+        "thought_trace": {
+            "observation": "IRCTC/Portal DOM detected.",
+            "reasoning": "Processing failed, reverting to safe fallback.",
+            "decision": "Standby."
+        },
+        "action": "NONE",
+        "element_id": "",
+        "prediction_score": 0.0,
+        "accessibility_feedback": "Error processing."
+    }
+    
     try:
         decision = llm.invoke(state["messages"])
-        trace = decision.model_dump() if hasattr(decision, "model_dump") else decision.__dict__
+        if hasattr(decision, "model_dump"):
+            trace = decision.model_dump()
+        elif hasattr(decision, "__dict__"):
+            trace = decision.__dict__
+        elif isinstance(decision, dict):
+            trace = decision
+            
+        logger.info("Generated accessibility trace successfully.")
     except Exception as e:
         logger.error(f"LLM generation failed: {e}")
-        # Fallback trace
-        trace = {
-            "thought_trace": {
-                "observation": "IRCTC/Portal DOM detected.",
-                "reasoning": "Processing failed, reverting to safe fallback.",
-                "decision": "Standby."
-            },
-            "action": "NONE",
-            "element_id": "",
-            "prediction_score": 0.0,
-            "accessibility_feedback": "Error processing."
-        }
         
-    logger.info("Generated accessibility trace successfully.")
     return {"current_trace": trace, "messages": [AIMessage(content=json.dumps(trace))]}
 
 def execute_action(state: AgentState) -> Dict[str, Any]:
@@ -167,12 +178,16 @@ workflow.add_edge("ExecuteAction", END)
 
 app = workflow.compile()
 
-async def run_agent(score: float, page_context: str = "", callback: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None) -> Optional[Dict[str, Any]]:
+async def run_agent(score: float, intent: str = "", page_context: str = "", callback: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None) -> Optional[Dict[str, Any]]:
     """
     Run the agent and optionally stream the trace back via a callback.
     """
+    system_content = SYSTEM_PROMPT
+    if intent:
+        system_content += f"\nUser Intent: {intent}\nTranslate this intent into an action on the screen."
+        
     initial_state = {
-        "messages": [SystemMessage(content=SYSTEM_PROMPT)],
+        "messages": [SystemMessage(content=system_content)],
         "prediction_score": score,
         "page_context": page_context,
         "current_trace": {}

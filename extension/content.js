@@ -104,6 +104,10 @@ container.innerHTML = `
       Jodo Agentic Trace
     </div>
   </div>
+  <div id="jodo-input-area">
+    <input type="text" id="jodo-intent-input" placeholder="Type or speak your intent..." aria-label="User intent">
+    <button id="jodo-mic-btn" aria-label="Speak intent" title="Click to speak">🎤</button>
+  </div>
   <div class="trace-list" role="region" aria-live="polite" aria-atomic="false">
     <div class="trace-section">
       <div class="label" id="obs-label">Observation</div>
@@ -158,18 +162,106 @@ function connectWebSocket() {
     try {
         const ws = new WebSocket('ws://localhost:8000/ws');
         
+        let activeWebSocket = null;
+
         ws.onopen = () => {
             console.log("Jodo Extension connected to Agent Backend.");
-            shadowRoot.getElementById('obs-val').innerText = "Connected. Sending DOM context...";
-            
-            // Extract a simplified version of the DOM to send as context
-            // We ignore the extension's own shadow host since it's injected later
-            const rawBody = document.body ? document.body.innerText.substring(0, 5000) : "No Body Content";
-            const contextData = `Page Title: ${document.title}\nBody Content: ${rawBody}`;
-            
-            // Send the context to the backend
-            ws.send(contextData);
+            shadowRoot.getElementById('obs-val').innerText = "Connected. Waiting for intent...";
+            activeWebSocket = ws;
         };
+
+        let intentTimeout = null;
+        const sendIntent = (intent) => {
+            if (intentTimeout) clearTimeout(intentTimeout);
+            intentTimeout = setTimeout(() => {
+                if (!activeWebSocket || activeWebSocket.readyState !== WebSocket.OPEN) return;
+            // 1. Tag actionable elements
+            let elementCounter = 1;
+            const actionableElements = [];
+            const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"], [role="link"]');
+            
+            elements.forEach(el => {
+                // Ignore the extension's own elements
+                if (el.closest('#jodo-overlay-host')) return;
+                
+                const id = \`jodo-\${elementCounter++}\`;
+                el.setAttribute('data-jodo-id', id);
+                
+                // Get visible text or aria-label
+                const text = el.innerText || el.getAttribute('aria-label') || el.value || el.placeholder || '';
+                if (text.trim()) {
+                    actionableElements.push({
+                        id: id,
+                        tagName: el.tagName.toLowerCase(),
+                        type: el.type || '',
+                        text: text.trim().substring(0, 100)
+                    });
+                }
+            });
+
+            const contextData = JSON.stringify({
+                pageTitle: document.title,
+                elements: actionableElements
+            });
+            
+            const payload = JSON.stringify({
+                intent: intent.trim().substring(0, 500), // Sanitize string length
+                page_context: contextData
+            });
+            activeWebSocket.send(payload);
+            shadowRoot.getElementById('obs-val').textContent = "Sending intent and context...";
+            }, 300); // 300ms debounce
+        };
+
+        // UI Event Listeners
+        const intentInput = shadowRoot.getElementById('jodo-intent-input');
+        const micBtn = shadowRoot.getElementById('jodo-mic-btn');
+
+        intentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && intentInput.value.trim()) {
+                sendIntent(intentInput.value.trim());
+            }
+        });
+
+        // Web Speech API (STT)
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onstart = () => {
+                micBtn.classList.add('listening');
+                intentInput.placeholder = 'Listening...';
+            };
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                intentInput.value = transcript;
+                sendIntent(transcript);
+            };
+            
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error", event.error);
+                micBtn.classList.remove('listening');
+                intentInput.placeholder = 'Type or speak your intent...';
+            };
+            
+            recognition.onend = () => {
+                micBtn.classList.remove('listening');
+                intentInput.placeholder = 'Type or speak your intent...';
+            };
+            
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('listening')) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+        } else {
+            micBtn.style.display = 'none';
+        }
+
         
         ws.onmessage = (event) => {
             try {
@@ -178,17 +270,48 @@ function connectWebSocket() {
                 // Expected schema
                 const trace = data.thought_trace || {};
                 
-                shadowRoot.getElementById('obs-val').innerText = trace.observation || 'N/A';
-                shadowRoot.getElementById('rea-val').innerText = trace.reasoning || 'N/A';
-                shadowRoot.getElementById('dec-val').innerText = trace.decision || 'N/A';
-                shadowRoot.getElementById('act-val').innerText = data.action || 'N/A';
+                shadowRoot.getElementById('obs-val').textContent = trace.observation || 'N/A';
+                shadowRoot.getElementById('rea-val').textContent = trace.reasoning || 'N/A';
+                shadowRoot.getElementById('dec-val').textContent = trace.decision || 'N/A';
+                shadowRoot.getElementById('act-val').textContent = data.action || 'N/A';
                 
+                // Web Speech API (TTS)
+                if (trace.decision && 'speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(trace.decision);
+                    // Cancel any ongoing speech to prioritize the latest decision
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(utterance);
+                }
+
+                // EXECUTION ENGINE
+                if (data.action && data.element_id) {
+                    const targetEl = document.querySelector(`[data-jodo-id="${data.element_id}"]`);
+                    if (targetEl) {
+                        console.log(`Jodo executing ${data.action} on`, targetEl);
+                        if (data.action === 'CLICK') {
+                            // Flash element briefly to show interaction
+                            const oldOutline = targetEl.style.outline;
+                            targetEl.style.outline = '3px solid #6366f1';
+                            setTimeout(() => {
+                                targetEl.style.outline = oldOutline;
+                                targetEl.click();
+                            }, 500);
+                        } else if (data.action === 'TYPE' && data.text_value) {
+                            targetEl.value = data.text_value;
+                            targetEl.dispatchEvent(new Event('input', { bubbles: true }));
+                            targetEl.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    } else {
+                        console.warn(`Jodo could not find element with ID: ${data.element_id}`);
+                    }
+                }
+
                 // Map some arbitrary string to a SignID for the inclusivity module demo
                 playLottie('S-101');
                 
             } catch (e) {
                 console.error("Failed to parse Jodo trace:", e);
-                shadowRoot.getElementById('obs-val').innerText = "Error parsing backend trace data.";
+                shadowRoot.getElementById('obs-val').textContent = "Error parsing backend trace data.";
             }
         };
         
@@ -198,7 +321,8 @@ function connectWebSocket() {
 
         ws.onclose = () => {
             console.log("Jodo WebSocket closed. Reconnecting in 5s...");
-            shadowRoot.getElementById('obs-val').innerText = "Disconnected. Retrying...";
+            shadowRoot.getElementById('obs-val').textContent = "Disconnected. Retrying...";
+            activeWebSocket = null;
             setTimeout(connectWebSocket, 5000);
         };
     } catch (e) {

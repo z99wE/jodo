@@ -1,11 +1,12 @@
 import asyncio
 import json
 import logging
-from typing import Dict, Any, List, Optional
 import time
+from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+from collections import deque
 
 from agent import run_agent
 from forecaster import JobTimingForecaster
@@ -32,23 +33,26 @@ class RateLimiter:
     def __init__(self, max_requests: int = 5, window_seconds: int = 60) -> None:
         self.max_requests = max_requests
         self.window_seconds = window_seconds
-        self.clients: Dict[str, List[float]] = {}
+        self.clients: Dict[str, deque[float]] = {}
         
     def check_rate_limit(self, request: Request) -> None:
         client_ip = request.client.host if request.client else "unknown"
         now = time.time()
         
-        # Clean up old timestamps
-        if client_ip in self.clients:
-            self.clients[client_ip] = [t for t in self.clients[client_ip] if now - t < self.window_seconds]
-        else:
-            self.clients[client_ip] = []
+        if client_ip not in self.clients:
+            self.clients[client_ip] = deque(maxlen=self.max_requests)
             
-        if len(self.clients[client_ip]) >= self.max_requests:
+        dq = self.clients[client_ip]
+        
+        # Clean up old timestamps from the left side of the deque
+        while dq and (now - dq[0]) > self.window_seconds:
+            dq.popleft()
+            
+        if len(dq) >= self.max_requests:
             logger.warning(f"Rate limit exceeded for IP: {client_ip}")
             raise HTTPException(status_code=429, detail="Too many requests. Please try again later.")
             
-        self.clients[client_ip].append(now)
+        dq.append(now)
 
 rate_limiter = RateLimiter()
 
@@ -83,6 +87,10 @@ forecaster = JobTimingForecaster(use_mock=True)
 class RunAgentRequest(BaseModel):
     timestamps: list[str] = []
 
+class IncomingWebSocketPayload(BaseModel):
+    intent: str
+    page_context: str
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
     """Handles WebSocket connections for real-time Jodo trace streaming."""
@@ -100,8 +108,17 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 
             logger.debug(f"Received from client: {data[:100]}...") # Log first 100 chars
             
-            # Extract DOM or default to empty
-            page_context = data if data else ""
+            # Extract intent and DOM context safely using Pydantic
+            try:
+                payload_dict = json.loads(data)
+                payload = IncomingWebSocketPayload(**payload_dict)
+                intent = payload.intent
+                page_context = payload.page_context
+            except (json.JSONDecodeError, ValidationError) as e:
+                logger.warning(f"Invalid payload format: {e}. Attempting raw string fallback.")
+                # Strict security: if it's not valid JSON, we reject processing it as intent
+                intent = ""
+                page_context = data if isinstance(data, str) else ""
             
             # Predict timing (mock timestamps for now)
             forecast = forecaster.predict_optimal_window([])
@@ -111,9 +128,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             async def send_trace(trace: Dict[str, Any]) -> None:
                 await websocket.send_json(trace)
                 
-            # Run the agent with the received page context
+            # Run the agent with the received intent and page context
             try:
-                await run_agent(score=score, page_context=page_context, callback=send_trace)
+                await run_agent(score=score, intent=intent, page_context=page_context, callback=send_trace)
             except Exception as agent_err:
                 logger.error(f"Agent failed on incoming WS data: {agent_err}")
                 
