@@ -1,115 +1,142 @@
 
-
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 font-sans">
+      {/* Background Glow Effects */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]" />
+      </div>
+
       {/* Navigation */}
-      <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 z-50">
-        <nav aria-label="Main Navigation" className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="fixed w-full z-50 top-0 border-b border-white/5 glass-panel">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <svg aria-hidden="true" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+            <div className="w-8 h-8 rounded-lg bg-primary neon-glow flex items-center justify-center" aria-label="Jodo Logo">
+              <span className="font-bold text-white tracking-tighter" aria-hidden="true">J</span>
             </div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">Jodo</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <a href="#features" className="hover:text-indigo-600 transition-colors focus-visible:outline-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 rounded-sm">Features</a>
-            <a href="#how-it-works" className="hover:text-indigo-600 transition-colors focus-visible:outline-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 rounded-sm">How it Works</a>
-            <a href="https://github.com/z99wE/jodo" target="_blank" rel="noreferrer" className="hover:text-indigo-600 transition-colors focus-visible:outline-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 rounded-sm">Documentation</a>
-          </div>
-          <button aria-label="Download Extension" className="bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md focus-visible:outline-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2">
-            Download Extension
-          </button>
-        </nav>
-      </header>
-
-      <main>
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
-        {/* Decorative background gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] opacity-30 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 blur-[100px] rounded-full mix-blend-multiply transform -skew-y-12"></div>
-        </div>
-
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-8">
-            The Agentic OS for <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              Professional Accessibility
+            <span className="text-xl font-bold tracking-tight text-white">
+              Jodo
             </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-10">
-            Navigate complex web interfaces automatically. Jodo bridges the digital divide for Indian professionals by executing workflows via the Accessibility Tree, ensuring you are judged on skill, not interface friction.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button aria-label="Install Chrome Extension" className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 focus-visible:outline-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2">
-              Install Chrome Extension
-            </button>
-            <button aria-label="View on GitHub" className="w-full sm:w-auto bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-full text-lg font-medium hover:bg-slate-50 transition-all shadow-sm focus-visible:outline-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2">
-              View on GitHub
-            </button>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+            <a href="#features" className="hover:text-white transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
+            <a href="#docs" className="hover:text-white transition-colors">Docs</a>
+          </div>
+          <div>
+            <a 
+              href="/jodo-extension.zip" 
+              download
+              aria-label="Download Jodo Extension"
+              className="px-5 py-2.5 rounded-full bg-zinc-800 text-sm font-medium text-white border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-all"
+            >
+              Get Extension
+            </a>
           </div>
         </div>
-      </section>
+      </nav>
 
-      {/* Feature Grid */}
-      <section id="features" className="py-24 bg-white border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Built for Transparency and Scale</h2>
-            <p className="text-lg text-slate-600">Real-time traces, time-series forecasting, and multimodal feedback.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div aria-hidden="true" className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-6">
-                <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Agentic Navigator</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Interacts directly with the browser&apos;s Accessibility Tree (AXTree). Bypasses brittle DOM scrapers for reliable, semantic workflow execution on any job portal or SaaS platform.
-              </p>
+      <main className="relative z-10">
+        {/* Hero Section */}
+        <section className="relative pt-40 pb-32 px-6 flex flex-col items-center justify-center min-h-[90vh] text-center">
+          <div className="max-w-4xl mx-auto flex flex-col items-center">
+            
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-widest mb-8">
+              <span>Agentic OS Beta</span>
             </div>
 
-            {/* Feature 2 */}
-            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div aria-hidden="true" className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-                <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Cognitive Insight Engine</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Verifiable logic traces for every action. Jodo broadcasts its reasoning in real-time to your screen via WebSockets, eliminating black-box anxiety.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div aria-hidden="true" className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-                <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Predictive Career Pathing</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Powered by the Lag-Llama engine. Jodo analyzes professional time-series data to forecast optimal application windows, maximizing your success rate.
-              </p>
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-white mb-6 leading-[1.1]">
+              Jodo equalizes the <br className="hidden md:block" />
+              <span className="text-gradient">digital workplace.</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mb-12 leading-relaxed">
+              Agentic accessibility middleware. Jodo bridges the inclusivity gap by parsing web interfaces through the Accessibility Tree and acting autonomously on your behalf.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+              <a 
+                href="/jodo-extension.zip" 
+                download
+                aria-label="Download Jodo Extension zip file"
+                className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary text-white font-semibold flex items-center justify-center gap-2 neon-glow hover:bg-purple-500 transition-all active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Download Extension
+              </a>
+              <a 
+                href="#docs" 
+                className="w-full sm:w-auto px-8 py-4 rounded-full bg-zinc-900 border border-zinc-800 text-white font-semibold flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all active:scale-[0.98]"
+              >
+                Read the Docs
+              </a>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Features Bento Grid */}
+        <section id="features" className="py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Core infrastructure.</h2>
+              <p className="text-zinc-400 text-lg max-w-2xl">Jodo replaces visual navigation with semantic execution. We parse the DOM, analyze intent, and execute actions with verifiable logic traces.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Feature 1 */}
+              <div className="glass-panel rounded-3xl p-8 flex flex-col h-full group hover:border-primary/50 transition-colors duration-300">
+                <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-8 group-hover:bg-primary/20 group-hover:border-primary/50 group-hover:text-primary transition-colors text-zinc-400">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Logic Trace Transparency</h3>
+                <p className="text-zinc-400 leading-relaxed text-sm">
+                  Verify every action. Jodo generates a transparent reasoning trace, moving AI out of the black box and establishing trust.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="glass-panel rounded-3xl p-8 flex flex-col h-full group hover:border-blue-500/50 transition-colors duration-300">
+                <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-8 group-hover:bg-blue-500/20 group-hover:border-blue-500/50 group-hover:text-blue-400 transition-colors text-zinc-400">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Predictive Pathing</h3>
+                <p className="text-zinc-400 leading-relaxed text-sm">
+                  Time your engagement. Our forecasting engine analyzes systemic trends to suggest optimal action windows.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="glass-panel rounded-3xl p-8 flex flex-col h-full group hover:border-pink-500/50 transition-colors duration-300">
+                <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-8 group-hover:bg-pink-500/20 group-hover:border-pink-500/50 group-hover:text-pink-400 transition-colors text-zinc-400">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Multimodal Access</h3>
+                <p className="text-zinc-400 leading-relaxed text-sm">
+                  Navigate your way. Jodo translates standard visual interfaces for Deaf, HoH, and visually impaired professionals in real-time.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {/* Footer */}
-      <footer role="contentinfo" className="bg-slate-900 text-slate-400 py-12 text-center">
-        <p className="mb-4">Designed for the Indian Professional Workforce.</p>
-        <p className="text-sm">&copy; {new Date().getFullYear()} Jodo Agentic OS. Open Source.</p>
+      <footer className="border-t border-white/5 py-12 relative z-10 bg-black/50 mt-20">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <div className="w-6 h-6 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+              <span className="font-bold text-primary text-xs">J</span>
+            </div>
+            <span className="text-sm font-semibold text-white tracking-tight">Jodo</span>
+          </div>
+          <p className="text-zinc-500 text-sm">
+            © {new Date().getFullYear()} Jodo Agentic OS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );

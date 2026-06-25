@@ -91,6 +91,13 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         while True:
             # Receive DOM context from the extension
             data = await websocket.receive_text()
+            
+            # Security: Prevent DoS by limiting payload size
+            if len(data) > 20000:
+                logger.warning("Received oversized payload. Dropping connection.")
+                await websocket.close(code=1009, reason="Payload too large")
+                break
+                
             logger.debug(f"Received from client: {data[:100]}...") # Log first 100 chars
             
             # Extract DOM or default to empty
