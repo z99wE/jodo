@@ -98,31 +98,31 @@ shadowRoot.appendChild(style);
 const container = document.createElement('div');
 container.id = 'jodo-container';
 container.innerHTML = `
-  <div class="header">
+  <div class="header" role="heading" aria-level="2">
     <div class="header-title">
-      <div class="live-indicator"></div>
+      <div class="live-indicator" aria-hidden="true"></div>
       Jodo Agentic Trace
     </div>
   </div>
-  <div class="trace-list">
+  <div class="trace-list" role="region" aria-live="polite" aria-atomic="false">
     <div class="trace-section">
-      <div class="label">Observation</div>
-      <div class="value" id="obs-val">Waiting for page context...</div>
+      <div class="label" id="obs-label">Observation</div>
+      <div class="value" id="obs-val" aria-labelledby="obs-label">Waiting for page context...</div>
     </div>
     <div class="trace-section">
-      <div class="label">Reasoning</div>
-      <div class="value" id="rea-val">Analyzing accessibility tree...</div>
+      <div class="label" id="rea-label">Reasoning</div>
+      <div class="value" id="rea-val" aria-labelledby="rea-label">Analyzing accessibility tree...</div>
     </div>
     <div class="trace-section">
-      <div class="label">Decision</div>
-      <div class="value" id="dec-val">Standby</div>
+      <div class="label" id="dec-label">Decision</div>
+      <div class="value" id="dec-val" aria-labelledby="dec-label">Standby</div>
     </div>
     <div class="trace-section">
-      <div class="label">Action</div>
-      <div class="value" id="act-val">None</div>
+      <div class="label" id="act-label">Action</div>
+      <div class="value" id="act-val" aria-labelledby="act-label">None</div>
     </div>
   </div>
-  <div id="lottie-container"></div>
+  <div id="lottie-container" aria-hidden="true"></div>
 `;
 shadowRoot.appendChild(container);
 
@@ -155,37 +155,48 @@ function playLottie(signId) {
 
 // Connect to WebSocket Server
 function connectWebSocket() {
-    const ws = new WebSocket('ws://localhost:8000/ws');
-    
-    ws.onopen = () => {
-        console.log("Jodo Extension connected to Agent Backend.");
-    };
-    
-    ws.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            
-            // Expected schema
-            const trace = data.thought_trace || {};
-            
-            shadowRoot.getElementById('obs-val').innerText = trace.observation || 'N/A';
-            shadowRoot.getElementById('rea-val').innerText = trace.reasoning || 'N/A';
-            shadowRoot.getElementById('dec-val').innerText = trace.decision || 'N/A';
-            shadowRoot.getElementById('act-val').innerText = data.action || 'N/A';
-            
-            // Map some arbitrary string to a SignID for the inclusivity module demo
-            // In reality, the backend would send a specific 'SignID'
-            playLottie('S-101');
-            
-        } catch (e) {
-            console.error("Failed to parse Jodo trace:", e);
-        }
-    };
-    
-    ws.onclose = () => {
-        console.log("Jodo WebSocket closed. Reconnecting in 5s...");
+    try {
+        const ws = new WebSocket('ws://localhost:8000/ws');
+        
+        ws.onopen = () => {
+            console.log("Jodo Extension connected to Agent Backend.");
+            shadowRoot.getElementById('obs-val').innerText = "Connected to backend engine.";
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                
+                // Expected schema
+                const trace = data.thought_trace || {};
+                
+                shadowRoot.getElementById('obs-val').innerText = trace.observation || 'N/A';
+                shadowRoot.getElementById('rea-val').innerText = trace.reasoning || 'N/A';
+                shadowRoot.getElementById('dec-val').innerText = trace.decision || 'N/A';
+                shadowRoot.getElementById('act-val').innerText = data.action || 'N/A';
+                
+                // Map some arbitrary string to a SignID for the inclusivity module demo
+                playLottie('S-101');
+                
+            } catch (e) {
+                console.error("Failed to parse Jodo trace:", e);
+                shadowRoot.getElementById('obs-val').innerText = "Error parsing backend trace data.";
+            }
+        };
+        
+        ws.onerror = (error) => {
+            console.error("Jodo WebSocket error:", error);
+        };
+
+        ws.onclose = () => {
+            console.log("Jodo WebSocket closed. Reconnecting in 5s...");
+            shadowRoot.getElementById('obs-val').innerText = "Disconnected. Retrying...";
+            setTimeout(connectWebSocket, 5000);
+        };
+    } catch (e) {
+        console.error("Jodo WebSocket initialization failed:", e);
         setTimeout(connectWebSocket, 5000);
-    };
+    }
 }
 
 connectWebSocket();
