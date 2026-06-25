@@ -43,16 +43,16 @@ export default function Home() {
           <div className="max-w-4xl mx-auto flex flex-col items-center">
             
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-widest mb-8">
-              <span>Agentic OS Beta</span>
+              <span>The Everyday AI Innovator</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-white mb-6 leading-[1.1]">
-              Jodo equalizes the <br className="hidden md:block" />
-              <span className="text-gradient">digital workplace.</span>
+              Jodo simplifies the <br className="hidden md:block" />
+              <span className="text-gradient">complex Indian web.</span>
             </h1>
             
             <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mb-12 leading-relaxed">
-              Agentic accessibility middleware. Jodo bridges the inclusivity gap by parsing web interfaces through the Accessibility Tree and acting autonomously on your behalf.
+              The internet wasn&apos;t built for everyone. Jodo is an AI co-pilot that autonomously navigates confusing websites—from IRCTC to local government portals—so anyone can participate in Digital India.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
@@ -79,8 +79,8 @@ export default function Home() {
         <section id="features" className="py-32 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="mb-20">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Core infrastructure.</h2>
-              <p className="text-zinc-400 text-lg max-w-2xl">Jodo replaces visual navigation with semantic execution. We parse the DOM, analyze intent, and execute actions with verifiable logic traces.</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Everyday life, made better.</h2>
+              <p className="text-zinc-400 text-lg max-w-2xl">Jodo breaks down digital barriers. We parse complex DOMs, analyze intent, and execute actions, turning frustrating web tasks into simple, conversational experiences.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -90,9 +90,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-8 group-hover:bg-primary/20 group-hover:border-primary/50 group-hover:text-primary transition-colors text-zinc-400">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Logic Trace Transparency</h3>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Tame Complex Portals</h3>
                 <p className="text-zinc-400 leading-relaxed text-sm">
-                  Verify every action. Jodo generates a transparent reasoning trace, moving AI out of the black box and establishing trust.
+                  Struggling with Tatkal booking or EPFO claims? Jodo autonomously navigates dense, confusing UI on your behalf with a transparent logic trace.
                 </p>
               </div>
 
@@ -101,9 +101,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-8 group-hover:bg-blue-500/20 group-hover:border-blue-500/50 group-hover:text-blue-400 transition-colors text-zinc-400">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Predictive Pathing</h3>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Bundled Local AI</h3>
                 <p className="text-zinc-400 leading-relaxed text-sm">
-                  Time your engagement. Our forecasting engine analyzes systemic trends to suggest optimal action windows.
+                  No API key? No problem. Jodo falls back to a lightning-fast, bundled local AI model that runs directly on your machine to ensure reliable execution.
                 </p>
               </div>
 
@@ -112,9 +112,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-8 group-hover:bg-pink-500/20 group-hover:border-pink-500/50 group-hover:text-pink-400 transition-colors text-zinc-400">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Multimodal Access</h3>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Digital Bridge</h3>
                 <p className="text-zinc-400 leading-relaxed text-sm">
-                  Navigate your way. Jodo translates standard visual interfaces for Deaf, HoH, and visually impaired professionals in real-time.
+                  Overcome digital literacy barriers. Jodo translates intimidating visual interfaces into accessible, actionable tasks for everyone.
                 </p>
               </div>
 

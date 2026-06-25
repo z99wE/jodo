@@ -1,77 +1,64 @@
-# Jodo
+# Jodo: The Digital Bridge for Everyday India 🇮🇳
 
-**The Professional Equalizer.**  
-*Agentic accessibility middleware for the digital workplace.*
+[![Jodo Agentic OS](https://img.shields.io/badge/Jodo-Agentic_OS-a855f7?style=for-the-badge)](http://localhost:3000)
+[![Hackathon](https://img.shields.io/badge/Challenge_3-Everyday_AI_Innovator-blue?style=for-the-badge)](#)
 
----
-
-## The Inclusivity Gap
-
-Visual interfaces block talent. Modern professional software assumes a single type of user: one who can see, point, and click rapidly across complex, dense dashboards. When companies force applicants and employees through these non-accessible digital interfaces, they filter out top talent based on navigation speed, not actual skill.
-
-This structural barrier costs the global economy millions and keeps diverse talent locked out.
-
-## The Solution
-
-Jodo equalizes the digital workplace. 
-
-It functions as an Agentic OS—an autonomous workflow execution engine that sits between the professional and the software. Jodo parses the browser's Accessibility Tree (AXTree), analyzes the user's intent, and executes actions on their behalf. 
-
-You command. Jodo navigates.
-
-## Core Infrastructure
-
-### Logic Trace Transparency
-Verify every action. Jodo generates a transparent trace of its reasoning. We moved AI out of the black box, so you know exactly why and how an action was taken.
-
-### Predictive Pathing
-Time your engagement. The forecasting engine analyzes systemic trends to suggest optimal action windows for networking, application submission, and follow-ups.
-
-### Multimodal Access
-Navigate your way. Jodo translates standard visual interfaces for Deaf, Hard of Hearing, and visually impaired professionals in real-time.
+> **The internet wasn't built for everyone.** Jodo is an AI co-pilot that navigates complex Indian websites—from IRCTC to local government portals—so anyone can participate in Digital India, regardless of technical skill, language barrier, or visual ability.
 
 ---
 
-## Quick Start
+## 🚀 The Problem
 
-Jodo operates as a Chrome Extension backed by a local execution server. We have provided a single automated script to boot the entire environment.
+Everyday life in India requires navigating a maze of complex digital infrastructure. Booking a Tatkal train ticket on IRCTC, filing GST, checking EPFO balances, or paying a BESCOM electricity bill on a confusing portal are daunting tasks. For millions of Indians facing digital literacy barriers, language barriers, or visual impairments, these poorly designed interfaces are impossible to use.
 
-### 1. Launch the Environment
+## 💡 The Solution
 
-Run the automated boot script from the root directory. This script will automatically create Python virtual environments, install all dependencies, and boot both the FastAPI execution server and the Next.js dashboard concurrently.
+Jodo is an **agentic accessibility middleware** that sits between the user and the web. 
+It replaces visual navigation with conversational, semantic execution. 
+
+Instead of struggling to find the tiny "Book Now" button on a cluttered UI, Jodo reads the Accessibility Tree of the website, understands your intent, and autonomously clicks, types, and navigates for you.
+
+### 🌟 Key Features
+
+1. **Tame Complex Portals:** Point Jodo at any confusing website, and it autonomously handles the dense UI for you.
+2. **Logic Trace Transparency:** Jodo isn't a black box. It displays a real-time "Thought Trace" (Observation -> Reasoning -> Decision -> Action) so you know exactly what it's doing on your behalf.
+3. **Bundled Local AI (Zero Friction):** Don't have an OpenAI or Gemini API key? No problem. Jodo falls back to a lightning-fast, bundled local AI model (`SmolLM2`) that runs directly on your machine.
+
+---
+
+## ⚡ Quick Start (One-Click Boot)
+
+We have provided a single automated script to boot the entire environment. This script installs dependencies, sets up the Python backend, and starts the Next.js dashboard concurrently.
 
 ```bash
-# Make the script executable if it isn't already
+# Make the script executable
 chmod +x start.sh
 
-# Run the environment
+# Boot the Jodo ecosystem
 ./start.sh
 ```
 
-*Note: The script requires Python 3.11+ and Node.js to be installed on your machine.*
+*Note: Requires Python 3.11+ and Node.js.*
 
-### 2. Install the Extension
-
-The browser extension reads the AXTree and streams it to the execution server.
-
+### Install the Chrome Extension
 1. Open Chrome and navigate to `chrome://extensions/`.
 2. Enable **Developer mode** in the top right corner.
 3. Click **Load unpacked**.
 4. Select the `extension/` directory from this repository.
-
-### 3. Access the Dashboard
-
-Once `./start.sh` is running, visit `http://localhost:3000` to access the Jodo control panel. The backend execution server runs invisibly on port 8000.
+5. Navigate to any website (e.g., irctc.co.in) to see the Jodo overlay in action!
 
 ---
 
-## Architecture
+## 🧠 Architecture (How it works)
 
-- **Extension (`content.js`)**: Captures the Chrome Accessibility Tree and sends it via WebSocket.
-- **Backend (`ax_parser.py`)**: Compresses the massive AXTree into a dense, semantic payload for the LLM.
-- **Brain (`agent.py`)**: LangGraph workflow that processes the context, generates a Logic Trace, and decides the next action.
-- **Frontend (`page.tsx`)**: The control interface and visualization hub.
+Jodo operates as a Chrome Extension backed by a local execution server.
 
-## License
+1. **The Scraper (`content.js`):** Injects a secure Shadow DOM into the webpage. It reads the raw DOM text and streams it via WebSockets to the backend.
+2. **The Brain (`agent.py`):** A FastAPI server running a **LangGraph** workflow. It receives the DOM context, queries the LLM (GPT-4o-mini, Gemini, or the bundled Local SmolLM2), and generates an actionable trace.
+3. **The Executor:** The backend streams the decision back to the extension, which executes the action (click/type) on the page and displays the reasoning trace to the user.
 
-Jodo is built to open the doors. Open-source and MIT Licensed.
+---
+
+### Built for "The Everyday AI Innovator" Hackathon
+
+This project was built to address **Challenge 3: Life, Made Better**. It delivers a single, simple, AI-powered feature that truly enriches the everyday rhythm of life in India by removing the friction from our most essential digital services.
