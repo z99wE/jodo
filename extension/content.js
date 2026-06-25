@@ -10,51 +10,86 @@ const shadowRoot = host.attachShadow({ mode: 'open' });
 const style = document.createElement('style');
 style.textContent = `
   #jodo-container {
-    width: 350px;
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 16px;
-    color: #f8fafc;
-    font-family: system-ui, -apple-system, sans-serif;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
+    width: 360px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 20px;
+    padding: 20px;
+    color: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    pointer-events: auto;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .header-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .live-indicator {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+    animation: pulse 2s infinite;
+  }
+  .trace-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    pointer-events: auto; /* Allow interactions inside the box if needed */
-  }
-  .header {
-    font-weight: 600;
-    font-size: 14px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 8px;
-    margin-bottom: 4px;
+    max-height: 350px;
+    overflow-y: auto;
   }
   .trace-section {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.01);
   }
   .label {
     font-size: 11px;
-    color: #64748b;
+    font-weight: 600;
+    color: #6366f1;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
   }
   .value {
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.5;
+    color: #334155;
   }
   #lottie-container {
     width: 100%;
-    height: 150px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    height: 140px;
+    background: #f1f5f9;
+    border-radius: 12px;
     overflow: hidden;
-    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
   }
 `;
 shadowRoot.appendChild(style);
@@ -63,22 +98,29 @@ shadowRoot.appendChild(style);
 const container = document.createElement('div');
 container.id = 'jodo-container';
 container.innerHTML = `
-  <div class="header">Jodo CoT Trace</div>
-  <div class="trace-section">
-    <div class="label">Observation</div>
-    <div class="value" id="obs-val">Waiting...</div>
+  <div class="header">
+    <div class="header-title">
+      <div class="live-indicator"></div>
+      Jodo Agentic Trace
+    </div>
   </div>
-  <div class="trace-section">
-    <div class="label">Reasoning</div>
-    <div class="value" id="rea-val">Waiting...</div>
-  </div>
-  <div class="trace-section">
-    <div class="label">Decision</div>
-    <div class="value" id="dec-val">Waiting...</div>
-  </div>
-  <div class="trace-section">
-    <div class="label">Action</div>
-    <div class="value" id="act-val">Waiting...</div>
+  <div class="trace-list">
+    <div class="trace-section">
+      <div class="label">Observation</div>
+      <div class="value" id="obs-val">Waiting for page context...</div>
+    </div>
+    <div class="trace-section">
+      <div class="label">Reasoning</div>
+      <div class="value" id="rea-val">Analyzing accessibility tree...</div>
+    </div>
+    <div class="trace-section">
+      <div class="label">Decision</div>
+      <div class="value" id="dec-val">Standby</div>
+    </div>
+    <div class="trace-section">
+      <div class="label">Action</div>
+      <div class="value" id="act-val">None</div>
+    </div>
   </div>
   <div id="lottie-container"></div>
 `;
