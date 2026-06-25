@@ -53,6 +53,8 @@ chmod +x start.sh
 
 ## 🧠 Architecture (How it works)
 
+![Jodo Architecture Diagram](./assets/architecture.png)
+
 Jodo operates as a Chrome Extension backed by a local execution server.
 
 1. **The Scraper (`content.js`):** Injects a secure Shadow DOM into the webpage. It reads the raw DOM text and streams it via WebSockets to the backend.
