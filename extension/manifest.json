@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Jodo Agentic Overlay",
+  "version": "1.0",
+  "description": "Jodo Accessibility Middleware Layer.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["overlay.css"],
+      "js": ["lottie.min.js", "content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

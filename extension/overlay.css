@@ -1,0 +1,9 @@
+/* This CSS will be injected into the main page to style the host element if needed, 
+   but we'll mostly style the Shadow DOM internally. */
+#jodo-overlay-host {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483647; /* Max z-index */
+  pointer-events: none; /* Let clicks pass through */
+}
