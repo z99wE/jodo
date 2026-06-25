@@ -1,8 +1,9 @@
 import asyncio
 import json
 import logging
-from typing import Dict, Any, List
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from typing import Dict, Any, List, Optional
+import time
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -15,14 +16,41 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Jodo Agentic Backend")
 
-# Allow CORS for Chrome Extension
+# Allow CORS for Chrome Extension and local development
+# Use regex to safely allow the specific local domain and any chrome-extension origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"^chrome-extension://.*$|^http://localhost:3000$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Simple Rate Limiter
+class RateLimiter:
+    """Basic in-memory rate limiter to prevent abuse."""
+    def __init__(self, max_requests: int = 5, window_seconds: int = 60) -> None:
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.clients: Dict[str, List[float]] = {}
+        
+    def check_rate_limit(self, request: Request) -> None:
+        client_ip = request.client.host if request.client else "unknown"
+        now = time.time()
+        
+        # Clean up old timestamps
+        if client_ip in self.clients:
+            self.clients[client_ip] = [t for t in self.clients[client_ip] if now - t < self.window_seconds]
+        else:
+            self.clients[client_ip] = []
+            
+        if len(self.clients[client_ip]) >= self.max_requests:
+            logger.warning(f"Rate limit exceeded for IP: {client_ip}")
+            raise HTTPException(status_code=429, detail="Too many requests. Please try again later.")
+            
+        self.clients[client_ip].append(now)
+
+rate_limiter = RateLimiter()
 
 class ConnectionManager:
     """Manages active WebSocket connections for broadcasting traces."""
@@ -71,11 +99,14 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         manager.disconnect(websocket)
 
 @app.post("/trigger-agent")
-async def trigger_agent(request: RunAgentRequest) -> Dict[str, Any]:
+async def trigger_agent(request: RunAgentRequest, req: Request) -> Dict[str, Any]:
     """
     Endpoint to manually trigger the agent workflow.
     Predicts optimal interaction timing and runs the langgraph agent.
+    Includes basic rate limiting.
     """
+    # Enforce Rate Limiting
+    rate_limiter.check_rate_limit(req)
     # 1. Predict Timing
     forecast = forecaster.predict_optimal_window(request.timestamps)
     score = forecast.get("score", 0.5)
