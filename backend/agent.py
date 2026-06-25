@@ -6,6 +6,9 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AI
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 
+from models import AgentDecision
+from ax_parser import parse_ax_tree
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -13,35 +16,21 @@ class AgentState(TypedDict):
     """State schema for the Jodo LangGraph agent workflow."""
     messages: Sequence[BaseMessage]
     prediction_score: float
+    page_context: str
     current_trace: Dict[str, Any]
 
 # Define the System Prompt for CoT Introspection
 SYSTEM_PROMPT = """
 You are Jodo, an Agentic Professional OS acting as an accessibility middleware layer.
-Before executing any interaction, output a JSON object with a thought_trace containing:
-- Observation: What you see on the page.
-- Reasoning: Why it matters to the user (considering preferences/needs).
-- Decision: What you will do next.
-
-Your trace MUST match the following JSON schema exactly, and be parsable:
-{
-  "thought_trace": {
-    "observation": "...",
-    "reasoning": "...",
-    "decision": "..."
-  },
-  "action": "...",
-  "element_id": "...",
-  "prediction_score": 0.0,
-  "accessibility_feedback": "..."
-}
+You must return a structured JSON response matching the AgentDecision schema.
 """
 
 def analyze_page(state: AgentState) -> Dict[str, Any]:
     """Analyzes the current page accessibility tree."""
-    observation = "Page contains high density of 'On-site' requirements."
+    raw_html = state.get("page_context", "")
+    observation = parse_ax_tree(raw_html)
     logger.debug(f"AnalyzePage observation: {observation}")
-    return {"messages": [HumanMessage(content=f"Current page state: {observation}")]}
+    return {"messages": [HumanMessage(content=f"Parsed Semantic Context: {observation}")]}
 
 def predict_timing(state: AgentState) -> Dict[str, Any]:
     """Incorporates the timing prediction score into the agent state."""
@@ -51,16 +40,22 @@ def predict_timing(state: AgentState) -> Dict[str, Any]:
 
 def generate_trace(state: AgentState) -> Dict[str, Any]:
     """Generates a structured CoT thought trace for accessibility auditing."""
+    # In a full production implementation, we invoke the LLM here:
+    # llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    # structured_llm = llm.with_structured_output(AgentDecision)
+    # decision = structured_llm.invoke(state["messages"])
+    
+    # For now, we mock the LLM response to avoid requiring API keys during the demo
     trace = {
       "thought_trace": {
-        "observation": "Page contains high density of 'On-site' requirements.",
-        "reasoning": "User has 'Remote-Only' preference in profile. Risk: High.",
-        "decision": "Filter out job card."
+        "observation": "Extracted semantic content: [Button 'Apply Now'], [Text 'Remote-Only']",
+        "reasoning": "The user prefers Remote-Only jobs, and this matches their profile.",
+        "decision": "I will click the Apply Now button."
       },
-      "action": "TOGGLE_VISIBILITY",
-      "element_id": "job_card_42",
+      "action": "CLICK",
+      "element_id": "apply_btn_01",
       "prediction_score": state.get("prediction_score", 0.88),
-      "accessibility_feedback": "Hidden non-matching job: 'Role Name'."
+      "accessibility_feedback": "Applying to Remote-Only role."
     }
     logger.info("Generated accessibility trace successfully.")
     return {"current_trace": trace, "messages": [AIMessage(content=json.dumps(trace))]}
@@ -88,20 +83,14 @@ workflow.add_edge("ExecuteAction", END)
 
 app = workflow.compile()
 
-async def run_agent(score: float, callback: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None) -> Optional[Dict[str, Any]]:
+async def run_agent(score: float, page_context: str = "", callback: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None) -> Optional[Dict[str, Any]]:
     """
     Run the agent and optionally stream the trace back via a callback.
-    
-    Args:
-        score: The prediction score from the forecaster.
-        callback: Async function to call with the generated trace.
-        
-    Returns:
-        The generated trace dictionary, or None if generation fails.
     """
     initial_state = {
         "messages": [SystemMessage(content=SYSTEM_PROMPT)],
         "prediction_score": score,
+        "page_context": page_context,
         "current_trace": {}
     }
     
@@ -117,10 +106,3 @@ async def run_agent(score: float, callback: Optional[Callable[[Dict[str, Any]], 
     except Exception as e:
         logger.error(f"Error during graph execution: {e}")
         return None
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    async def print_callback(trace: Dict[str, Any]) -> None:
-        logger.info(f"Generated Trace: {json.dumps(trace, indent=2)}")
-        
-    asyncio.run(run_agent(0.88, print_callback))

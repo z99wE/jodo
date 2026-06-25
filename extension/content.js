@@ -160,7 +160,15 @@ function connectWebSocket() {
         
         ws.onopen = () => {
             console.log("Jodo Extension connected to Agent Backend.");
-            shadowRoot.getElementById('obs-val').innerText = "Connected to backend engine.";
+            shadowRoot.getElementById('obs-val').innerText = "Connected. Sending DOM context...";
+            
+            // Extract a simplified version of the DOM to send as context
+            // We ignore the extension's own shadow host since it's injected later
+            const rawBody = document.body ? document.body.innerText.substring(0, 5000) : "No Body Content";
+            const contextData = `Page Title: ${document.title}\nBody Content: ${rawBody}`;
+            
+            // Send the context to the backend
+            ws.send(contextData);
         };
         
         ws.onmessage = (event) => {

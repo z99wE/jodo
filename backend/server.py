@@ -89,9 +89,27 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     await manager.connect(websocket)
     try:
         while True:
-            # Wait for client messages (could be page DOM contexts in the future)
+            # Receive DOM context from the extension
             data = await websocket.receive_text()
-            logger.debug(f"Received from client: {data}")
+            logger.debug(f"Received from client: {data[:100]}...") # Log first 100 chars
+            
+            # Extract DOM or default to empty
+            page_context = data if data else ""
+            
+            # Predict timing (mock timestamps for now)
+            forecast = forecaster.predict_optimal_window([])
+            score = forecast.get("score", 0.5)
+            
+            # Callback to send trace back to this specific client
+            async def send_trace(trace: Dict[str, Any]) -> None:
+                await websocket.send_json(trace)
+                
+            # Run the agent with the received page context
+            try:
+                await run_agent(score=score, page_context=page_context, callback=send_trace)
+            except Exception as agent_err:
+                logger.error(f"Agent failed on incoming WS data: {agent_err}")
+                
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:

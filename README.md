@@ -49,6 +49,24 @@ Jodo operates as a silent partner. A user can specify their intent—such as app
    ```
 
 ## Repository Structure
-- `/backend`: Contains the LangGraph orchestrator, Lag-Llama forecasting models, and WebSocket server.
-- `/extension`: The Chrome extension injecting the accessibility Shadow DOM overlay.
-- `/landing`: The public-facing product site.
+
+The codebase is split into three main architectural pillars:
+
+### `/backend`
+The Python-based intelligent orchestrator.
+- `server.py`: The FastAPI server managing WebSocket connections, CORS security, and rate limiting.
+- `agent.py`: The LangGraph state machine driving the autonomous agent workflow.
+- `models.py`: Pydantic schemas enforcing strict structured JSON outputs from the LLM.
+- `ax_parser.py`: Utility for compressing raw HTML/AXTree data into token-efficient strings for the LLM.
+- `forecaster.py`: Time-series module (Lag-Llama integration) for predicting optimal job application windows.
+
+### `/extension`
+The Chrome Extension that bridges the browser and the backend.
+- `content.js`: Injects the Shadow DOM UI, scrapes the webpage's DOM, and streams it to the backend via WebSockets.
+- `overlay.css`: WCAG AAA compliant styling for the agentic trace overlay.
+- `manifest.json`: Chrome extension permissions and entry points.
+
+### `/landing`
+The public Next.js marketing and documentation portal.
+- `src/app/page.tsx`: The main landing page, built with Tailwind CSS and strict semantic HTML for perfect accessibility.
+- `next.config.ts`: Contains hardened Content-Security-Policy (CSP) headers to prevent XSS.
